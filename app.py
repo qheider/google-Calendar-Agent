@@ -82,27 +82,40 @@ Behavior rules:
 - Talk naturally with the user
 - Ask questions if date, time, or duration are missing
 - Never create an event until you have:
-  title, start_time, end_time
+  title, start_time, end_time (in ISO 8601 format: YYYY-MM-DDTHH:MM:SS)
 - Once ready, call the calendar tool
 - Confirm the result
 """,
     tools=[
         schedule_calendar_event
     ],
-    model="gpt-4.1",
+    model="gpt-4o-mini",
 )
+
+# Maintain conversation history
+conversation_history = []
 
 while True:
     user_input = input("User: ")
     if user_input.lower() in {"exit", "quit"}:
         break
 
+    # Add user message to history
+    conversation_history.append({"role": "user", "content": user_input})
+    
+    # Create context from history
+    context = "\n".join([f"{msg['role']}: {msg['content']}" for msg in conversation_history])
+    
     result = Runner.run_sync(
         starting_agent=calendar_agent,
-        input=user_input
+        input=context
     )
 
-    print("Agent:", result.final_output)
+    response = result.final_output
+    print("Agent:", response)
+    
+    # Add agent response to history
+    conversation_history.append({"role": "assistant", "content": response})
 
 # async def joke_teller():
 #     result = await Runner.run(
