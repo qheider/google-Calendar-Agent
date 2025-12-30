@@ -12,14 +12,16 @@ https://calendar.google.com/...
 
 # Google Calendar Agent
 
-An AI-powered calendar scheduling agent that uses OpenAI's GPT models to interact naturally with users and manage Google Calendar events.
+An AI-powered calendar scheduling agent that uses OpenAI's GPT models to interact naturally with users and manage Google Calendar events through a modern web interface.
 
 ## Features
 
 - 🤖 Natural language conversation for scheduling
 - 📅 Google Calendar integration
+- 🌐 Web-based chat interface (Flask)
 - ✨ Context-aware multi-turn conversations
 - 🔒 Secure OAuth 2.0 authentication
+- 💬 Real-time chat interface
 - ⚡ Easy setup and configuration
 
 ## Prerequisites
@@ -46,7 +48,7 @@ An AI-powered calendar scheduling agent that uses OpenAI's GPT models to interac
 
 3. **Install dependencies**
    ```bash
-   pip install openai openai-agents google-api-python-client google-auth google-auth-oauthlib python-dateutil python-dotenv
+   pip install openai openai-agents google-api-python-client google-auth google-auth-oauthlib python-dateutil python-dotenv flask flask-session
    ```
 
 ## Google Calendar API Setup
@@ -96,9 +98,23 @@ This will:
 - List your calendars
 - Show upcoming events
 
-### Run the Calendar Agent
+### Run the Flask Web Application
 
-Start the interactive calendar agent:
+Start the Flask web server:
+```bash
+python flask_app.py
+```
+
+Then open your browser and navigate to:
+```
+http://localhost:5000
+```
+
+You'll see a modern chat interface where you can interact with the calendar agent.
+
+### Alternative: Command Line Interface
+
+If you prefer the CLI version, you can still use:
 ```bash
 python app.py
 ```
@@ -123,10 +139,15 @@ The agent accepts natural language, but internally uses ISO 8601 format:
 
 ```
 google-Calendar-Agent/
-├── app.py                  # Main application
-├── calendarTest.py         # API connection test
-├── .env                    # Environment variables (not in git)
-├── .gitignore             # Git ignore rules
+├── flask_app.py           # Flask web application (main)
+├── app.py                 # CLI version
+├── calendarTest.py        # API connection test
+├── templates/             # HTML templates
+│   └── index.html        # Chat interface
+├── static/               # Static assets
+│   └── style.css        # Styles for web interface
+├── .env                  # Environment variables (not in git)
+├── .gitignore           # Git ignore rules
 ├── credentials.json        # Google OAuth credentials (not in git)
 ├── token.pickle           # Cached authentication token (not in git)
 └── README.md              # This file

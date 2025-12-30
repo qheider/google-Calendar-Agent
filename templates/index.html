@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Calendar Agent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Google Calendar Agent</h1>
+            <p class="subtitle">Your AI-powered scheduling assistant</p>
+            <button id="clearBtn" class="clear-btn" onclick="clearConversation()">Clear Chat</button>
+        </div>
+        
+        <div id="chatContainer" class="chat-container">
+            <div class="welcome-message">
+                <h2>Welcome! 👋</h2>
+                <p>I'm your calendar scheduling assistant. I can help you:</p>
+                <ul>
+                    <li>Schedule meetings and events</li>
+                    <li>Add attendees to events</li>
+                    <li>Set up appointments with natural language</li>
+                </ul>
+                <p class="hint">Try saying: "Schedule a meeting with John tomorrow at 3pm for 1 hour"</p>
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <form id="chatForm" onsubmit="sendMessage(event)">
+                <input 
+                    type="text" 
+                    id="userInput" 
+                    placeholder="Type your message here..." 
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" id="sendBtn">
+                    <span id="sendIcon">Send</span>
+                    <span id="loadingIcon" class="hidden">...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let isLoading = false;
+
+        function scrollToBottom() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addMessage(message, isUser) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'agent-message'}`;
+            
+            const label = document.createElement('div');
+            label.className = 'message-label';
+            label.textContent = isUser ? 'You' : 'Agent';
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = message;
+            
+            messageDiv.appendChild(label);
+            messageDiv.appendChild(content);
+            chatContainer.appendChild(messageDiv);
+            
+            scrollToBottom();
+        }
+
+        async function sendMessage(event) {
+            event.preventDefault();
+            
+            if (isLoading) return;
+            
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessage(message, true);
+            input.value = '';
+            
+            // Show loading state
+            isLoading = true;
+            document.getElementById('sendIcon').classList.add('hidden');
+            document.getElementById('loadingIcon').classList.remove('hidden');
+            document.getElementById('sendBtn').disabled = true;
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addMessage(data.response, false);
+                } else {
+                    addMessage('Error: ' + (data.error || 'Something went wrong'), false);
+                }
+            } catch (error) {
+                addMessage('Error: Failed to send message. Please try again.', false);
+                console.error('Error:', error);
+            } finally {
+                // Reset loading state
+                isLoading = false;
+                document.getElementById('sendIcon').classList.remove('hidden');
+                document.getElementById('loadingIcon').classList.add('hidden');
+                document.getElementById('sendBtn').disabled = false;
+                input.focus();
+            }
+        }
+
+        async function clearConversation() {
+            if (!confirm('Are you sure you want to clear the conversation?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/clear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    location.reload();
+                }
+            } catch (error) {
+                alert('Failed to clear conversation');
+                console.error('Error:', error);
+            }
+        }
+
+        // Focus input on page load
+        document.getElementById('userInput').focus();
+    </script>
+</body>
+</html>
