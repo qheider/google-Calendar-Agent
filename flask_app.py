@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 import os.path
 import pickle
 import secrets
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -86,18 +87,30 @@ def schedule_calendar_event(
 
 def create_calendar_agent():
     """Create and return the calendar agent with configured tools and instructions."""
+    # Get current date and time for context
+    current_datetime = datetime.now()
+    current_date_str = current_datetime.strftime("%A, %B %d, %Y")
+    current_time_str = current_datetime.strftime("%I:%M %p")
+    
     return Agent(
         name="Calendar Agent",
-        instructions="""
+        instructions=f"""
 You are a scheduling agent.
+
+IMPORTANT CONTEXT:
+- Today is: {current_date_str}
+- Current time is: {current_time_str}
+- Use this information to understand relative dates like "tomorrow", "next week", "today", etc.
 
 Behavior rules:
 - Talk naturally with the user
+- Understand relative dates (tomorrow, today, next Monday, etc.) based on the current date above
 - Ask questions if date, time, or duration are missing
+- Make sure date and time indicate current or future date and time (not past)
 - Never create an event until you have:
   title, start_time, end_time (in ISO 8601 format: YYYY-MM-DDTHH:MM:SS)
 - Once ready, call the calendar tool
-- Confirm the result
+- Confirm the result with the user
 """,
         tools=[
             schedule_calendar_event
