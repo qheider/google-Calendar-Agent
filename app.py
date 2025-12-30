@@ -73,63 +73,61 @@ def schedule_calendar_event(
     )
     return {"event_link": link}
 
-calendar_agent = Agent(
-    name="Calendar Agent",
-    instructions="""
+def create_calendar_agent():
+    """Create and return the calendar agent with configured tools and instructions."""
+    return Agent(
+        name="Calendar Agent",
+        instructions="""
 You are a scheduling agent.
 
 Behavior rules:
 - Talk naturally with the user
 - Ask questions if date, time, or duration are missing
+- make sure in is in the current or future date (not past) 
 - Never create an event until you have:
   title, start_time, end_time (in ISO 8601 format: YYYY-MM-DDTHH:MM:SS)
 - Once ready, call the calendar tool
 - Confirm the result
 """,
-    tools=[
-        schedule_calendar_event
-    ],
-    model="gpt-4o-mini",
-)
-
-# Maintain conversation history
-conversation_history = []
-
-while True:
-    user_input = input("User: ")
-    if user_input.lower() in {"exit", "quit"}:
-        break
-
-    # Add user message to history
-    conversation_history.append({"role": "user", "content": user_input})
-    
-    # Create context from history
-    context = "\n".join([f"{msg['role']}: {msg['content']}" for msg in conversation_history])
-    
-    result = Runner.run_sync(
-        starting_agent=calendar_agent,
-        input=context
+        tools=[
+            schedule_calendar_event
+        ],
+        model="gpt-4o-mini",
     )
 
-    response = result.final_output
-    print("Agent:", response)
+
+def main():
+    """Main function to run the calendar agent in an interactive loop."""
+    calendar_agent = create_calendar_agent()
+    conversation_history = []
     
-    # Add agent response to history
-    conversation_history.append({"role": "assistant", "content": response})
+    print("Google Calendar Agent")
+    print("=" * 50)
+    print("Type 'exit' or 'quit' to end the conversation.\n")
+    
+    while True:
+        user_input = input("User: ")
+        if user_input.lower() in {"exit", "quit"}:
+            print("Goodbye!")
+            break
 
-# async def joke_teller():
-#     result = await Runner.run(
-#         starting_agent=calendar_agent,
-#         input="tell me a joke"
-#     )
-#     print("\n🎭 Joke Result:")
-#     print(result.final_output)
-#     return result
+        # Add user message to history
+        conversation_history.append({"role": "user", "content": user_input})
+        
+        # Create context from history
+        context = "\n".join([f"{msg['role']}: {msg['content']}" for msg in conversation_history])
+        
+        result = Runner.run_sync(
+            starting_agent=calendar_agent,
+            input=context
+        )
 
-# async def main():
-#     with trace("Calendar Agent"):
-#         result = await joke_teller()
-#         print("\n✅ Agent execution completed")
+        response = result.final_output
+        print("Agent:", response)
+        
+        # Add agent response to history
+        conversation_history.append({"role": "assistant", "content": response})
 
-# if __name__ == "__main__":
-#     asyncio.run(main())
+
+if __name__ == "__main__":
+    main()
