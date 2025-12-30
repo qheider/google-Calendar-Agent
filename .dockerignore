@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+*.md
+
+# Test files
+calendarTest.py
+app.py
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore

@@ -1,0 +1,9 @@
+openai
+openai-agents
+google-api-python-client
+google-auth
+google-auth-oauthlib
+python-dateutil
+python-dotenv
+flask
+flask-session

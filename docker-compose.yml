@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  calendar-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: google-calendar-agent
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount credentials and token files
+      - ./credentials.json:/app/credentials.json:ro
+      - ./token.pickle:/app/token.pickle
+      # Mount .env file
+      - ./.env:/app/.env:ro
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=flask_app.py
+    restart: unless-stopped
+    networks:
+      - calendar-network
+
+networks:
+  calendar-network:
+    driver: bridge
