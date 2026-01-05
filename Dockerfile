@@ -18,6 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY flask_app.py .
+COPY app.py .
+COPY calendarTest.py .
 COPY templates/ templates/
 COPY static/ static/
 
