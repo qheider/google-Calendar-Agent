@@ -96,7 +96,7 @@ def list_calendar_meetings(
     """
     try:
         # Compute current-month range if no explicit range given
-        if not start_iso or not end_iso:
+        if not start_iso and not end_iso:
             if period == "current_month":
                 now = datetime.now(timezone.utc)
                 year = now.year
