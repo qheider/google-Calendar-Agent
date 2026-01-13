@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session
 from openai import OpenAI
-from agents import Agent, Runner, function_tool
+from agents import Agent, Runner, function_tool, trace
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -10,9 +10,17 @@ import os.path
 import pickle
 import secrets
 from datetime import datetime
+import logging
 
 # Load environment variables
 load_dotenv()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -76,12 +84,17 @@ def schedule_calendar_event(
     attendees: list[str] | None = None,
 ) -> dict:
     """Schedule a calendar event with the given details."""
+    logger.info(f"Tool Called: schedule_calendar_event")
+    logger.info(f"  Parameters: title={title}, start={start_time}, end={end_time}, attendees={attendees}")
+    
     link = create_event(
         summary=title,
         start_iso=start_time,
         end_iso=end_time,
         attendees=attendees,
     )
+    
+    logger.info(f"  Event created successfully: {link}")
     return {"event_link": link}
 
 
@@ -150,14 +163,18 @@ def chat():
     context = "\n".join([f"{msg['role']}: {msg['content']}" for msg in conversation_history])
     
     try:
-        # Create agent and run
+        # Create agent and run with tracing
+        logger.info(f"Processing message: {user_message[:50]}...")
         calendar_agent = create_calendar_agent()
-        result = Runner.run_sync(
-            starting_agent=calendar_agent,
-            input=context
-        )
+        
+        with trace("Calendar Agent Web Execution"):
+            result = Runner.run_sync(
+                starting_agent=calendar_agent,
+                input=context
+            )
         
         response = result.final_output
+        logger.info(f"Agent response generated: {response[:50]}...")
         
         # Add agent response to history
         conversation_history.append({"role": "assistant", "content": response})

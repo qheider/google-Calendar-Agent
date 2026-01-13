@@ -1,3 +1,4 @@
+import datetime
 from openai import OpenAI
 import asyncio
 from agents import Agent, Runner, function_tool, trace
@@ -72,12 +73,21 @@ def schedule_calendar_event(
     end_time: str,
     attendees: list[str] | None = None,
 ) -> dict:
+    """Schedule a calendar event with the given details."""
+    print(f"\n🔧 Tool Called: schedule_calendar_event")
+    print(f"   Title: {title}")
+    print(f"   Start: {start_time}")
+    print(f"   End: {end_time}")
+    print(f"   Attendees: {attendees or 'None'}")
+    
     link = create_event(
         summary=title,
         start_iso=start_time,
         end_iso=end_time,
         attendees=attendees,
     )
+    
+    print(f"   ✅ Event created: {link}\n")
     return {"event_link": link}
 
 @function_tool
@@ -163,10 +173,19 @@ def list_calendar_meetings(
 
 def create_calendar_agent():
     """Create and return the calendar agent with configured tools and instructions."""
+    current_datetime = datetime.now()
+    current_date_str = current_datetime.strftime("%A, %B %d, %Y")
+    current_time_str = current_datetime.strftime("%I:%M %p")
+
     return Agent(
         name="Calendar Agent",
         instructions="""
 You are a scheduling agent.
+
+IMPORTANT CONTEXT:
+- Today is: {current_date_str}
+- Current time is: {current_time_str}
+- Use this information to understand relative dates like "tomorrow", "next week", "today", etc.
 
 Behavior rules:
 - Talk naturally with the user
@@ -208,10 +227,12 @@ def main():
         # Create context from history
         context = "\n".join([f"{msg['role']}: {msg['content']}" for msg in conversation_history])
         
-        result = Runner.run_sync(
-            starting_agent=calendar_agent,
-            input=context
-        )
+        # Run with trace context
+        with trace("Calendar Agent Execution"):
+            result = Runner.run_sync(
+                starting_agent=calendar_agent,
+                input=context
+            )
 
         response = result.final_output
         print("Agent:", response)

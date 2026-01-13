@@ -26,11 +26,51 @@ An AI-powered calendar scheduling agent that uses OpenAI's GPT models to interac
 
 ## Prerequisites
 
-- Python 3.10 or higher
+- Python 3.10 or higher (for local development)
+- Docker and Docker Compose (for containerized deployment)
 - Google Cloud Platform account
 - OpenAI API key
 
 ## Installation
+
+### Option 1: Docker Deployment (Recommended)
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/qheider/google-Calendar-Agent.git
+   cd google-Calendar-Agent
+   ```
+
+2. **Set up environment variables**
+   Create a `.env` file:
+   ```bash
+   OPENAI_API_KEY=your-openai-api-key-here
+   ```
+
+3. **Add Google credentials**
+   - Place your `credentials.json` file in the project root
+   - Initial authentication will create `token.pickle`
+
+4. **Build and run with Docker Compose**
+   ```bash
+   docker-compose up -d
+   ```
+
+5. **Access the application**
+   - Open browser: http://localhost:5000
+   - Or from network: http://[your-ip]:5000
+
+6. **View logs** (optional)
+   ```bash
+   docker-compose logs -f
+   ```
+
+7. **Stop the container**
+   ```bash
+   docker-compose down
+   ```
+
+### Option 2: Local Development
 
 1. **Clone the repository**
    ```bash
@@ -48,7 +88,7 @@ An AI-powered calendar scheduling agent that uses OpenAI's GPT models to interac
 
 3. **Install dependencies**
    ```bash
-   pip install openai openai-agents google-api-python-client google-auth google-auth-oauthlib python-dateutil python-dotenv flask flask-session
+   pip install -r requirements.txt
    ```
 
 ## Google Calendar API Setup
@@ -146,11 +186,43 @@ google-Calendar-Agent/
 │   └── index.html        # Chat interface
 ├── static/               # Static assets
 │   └── style.css        # Styles for web interface
+├── Dockerfile            # Docker container definition
+├── docker-compose.yml    # Docker Compose configuration
+├── requirements.txt      # Python dependencies
+├── .dockerignore         # Docker ignore rules
 ├── .env                  # Environment variables (not in git)
 ├── .gitignore           # Git ignore rules
-├── credentials.json        # Google OAuth credentials (not in git)
-├── token.pickle           # Cached authentication token (not in git)
-└── README.md              # This file
+├── credentials.json      # Google OAuth credentials (not in git)
+├── token.pickle         # Cached authentication token (not in git)
+└── README.md            # This file
+```
+
+## Docker Commands
+
+### Build the Docker image manually
+```bash
+docker build -t calendar-agent .
+```
+
+### Run the container manually
+```bash
+docker run -d -p 5000:5000 \
+  -v $(pwd)/credentials.json:/app/credentials.json:ro \
+  -v $(pwd)/token.pickle:/app/token.pickle \
+  -v $(pwd)/.env:/app/.env:ro \
+  --name calendar-agent \
+  calendar-agent
+```
+
+### View container logs
+```bash
+docker logs -f calendar-agent
+```
+
+### Stop and remove container
+```bash
+docker stop calendar-agent
+docker rm calendar-agent
 ```
 
 ## Security Notes
