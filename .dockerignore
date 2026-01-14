@@ -1,6 +1,7 @@
 # Git
 .git
 .gitignore
+.gitattributes
 
 # Python
 __pycache__/
@@ -10,12 +11,17 @@ __pycache__/
 .Python
 *.pyc
 *.pyo
+*.pyd
+*.db
+*.sqlite
+*.sqlite3
 
 # Virtual environments
 .venv/
 venv/
 ENV/
 env/
+.python-version
 
 # IDE
 .vscode/
@@ -23,20 +29,43 @@ env/
 *.swp
 *.swo
 *~
+*.sublime-*
 
 # OS
 .DS_Store
 Thumbs.db
+*.log
 
 # Documentation
 README.md
 *.md
+LICENSE
 
 # Test files
 calendarTest.py
-app.py
+tests/
+test_*.py
+*_test.py
 
 # Docker
-Dockerfile
-docker-compose.yml
+Dockerfile*
+docker-compose*.yml
 .dockerignore
+
+# Credentials (will be mounted as volumes)
+Credentials.json
+token.pickle
+.env
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.tox/

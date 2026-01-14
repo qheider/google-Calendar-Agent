@@ -3,31 +3,55 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: google-calendar-agent:latest
     container_name: google-calendar-agent
     ports:
       - "5000:5000"
     volumes:
       # Mount credentials and token files
-      - ./credentials.json:/app/credentials.json:ro
+      - ./Credentials.json:/app/credentials.json:ro
       - ./token.pickle:/app/token.pickle
       # Mount .env file
       - ./.env:/app/.env:ro
+      # Persistent data volume
+      - calendar-data:/app/data
     environment:
       - FLASK_ENV=production
       - FLASK_APP=flask_app.py
+      - TZ=America/Toronto
     restart: unless-stopped
     networks:
       - calendar-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   calendar-cli:
     build:
       context: .
       dockerfile: Dockerfile
+    image: google-calendar-agent:latest
     container_name: google-calendar-cli
     command: python app.py
     volumes:
       # Mount credentials and token files
-      - ./credentials.json:/app/credentials.json:ro
+      - ./Credentials.json:/app/credentials.json:ro
       - ./token.pickle:/app/token.pickle
       # Mount .env file
       - ./.env:/app/.env:ro
@@ -39,6 +63,12 @@ services:
       - calendar-network
     profiles:
       - cli
+    environment:
+      - TZ=America/Toronto
+
+volumes:
+  calendar-data:
+    driver: local
 
 networks:
   calendar-network:
