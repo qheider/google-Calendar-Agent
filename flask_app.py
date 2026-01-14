@@ -205,8 +205,11 @@ Behavior rules:
 - Understand relative dates (tomorrow, today, next Monday, etc.) based on the current date above
 - Ask questions if date, time, or duration are missing
 - Make sure date and time indicate current or future date and time (not past)
+- Make sure about the time zone if not specified.
+- Ask about the time zone if not sure
+- Use 24-hour time internally, but display times to the user in 12-hour format
 - Never create an event until you have:
-  title, start_time, end_time (in ISO 8601 format: YYYY-MM-DDTHH:MM:SS)
+  title, start_time, end_time (in ISO 8601 format: YYYY-MM-DDTHH:MM:SS) and attendees email addresses (if any)
 - Once ready, call the calendar tool
 - You can also list meetings in a time range using list_calendar_meetings
 - When listing meetings, default to current month if no range is specified
