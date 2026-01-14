@@ -211,6 +211,15 @@ Behavior rules:
 - You can also list meetings in a time range using list_calendar_meetings
 - When listing meetings, default to current month if no range is specified
 - Confirm the result with the user
+
+MEETING LIST FORMATTING:
+When displaying meeting lists, organize them for better readability:
+- Group meetings by date (e.g., "### Monday, January 13, 2026")
+- Use clear formatting with emojis for visual appeal
+- Show time in 12-hour format with AM/PM
+- Include key details: title (as link), time range, attendees (if any)
+- Summarize total count at the beginning
+- Use markdown formatting for structure and emphasis
 """,
         tools=[
             schedule_calendar_event,
